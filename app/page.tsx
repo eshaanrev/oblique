@@ -1,7 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
 import Counter from "@/components/Counter";
-import HeroImage from "@/components/HeroImage";
 import IndexList from "@/components/IndexList";
 import Parallax from "@/components/Parallax";
 import Photo from "@/components/Photo";
@@ -34,7 +33,16 @@ export default function Home() {
     <>
       {/* ---------- hero ---------- */}
       <section className="relative h-[100svh] min-h-[560px] w-full overflow-hidden">
-        <HeroImage src={hero.cover.src} alt={hero.cover.alt} focus="50% 45%" />
+        <div className="settle absolute inset-0">
+          <Image
+            src={hero.cover.src}
+            alt={hero.cover.alt}
+            fill
+            priority
+            sizes="100vw"
+            style={{ objectFit: "cover", objectPosition: "50% 45%" }}
+          />
+        </div>
         {/* one scrim only: heavy where the type sits, almost nothing over the picture */}
         <div
           className="absolute inset-0"
