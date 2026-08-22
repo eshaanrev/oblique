@@ -13,13 +13,14 @@ export default function Counter({ to, suffix = "", duration = 1600 }: Props) {
     const el = ref.current;
     if (!el) return;
 
+    let raf = 0;
+
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (reduced || typeof IntersectionObserver === "undefined") {
-      setValue(to);
-      return;
+    if (reduced) {
+      raf = requestAnimationFrame(() => setValue(to));
+      return () => cancelAnimationFrame(raf);
     }
 
-    let raf = 0;
     const io = new IntersectionObserver(
       ([entry]) => {
         if (!entry.isIntersecting) return;

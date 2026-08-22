@@ -14,15 +14,25 @@ export default function Header() {
   const pathname = usePathname();
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
+  const [routeAtOpen, setRouteAtOpen] = useState(pathname);
+
+  // navigating closes the mobile drawer — adjusted during render rather than
+  // in an effect, so the drawer is never painted open on the new page
+  if (routeAtOpen !== pathname) {
+    setRouteAtOpen(pathname);
+    setOpen(false);
+  }
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
-    onScroll();
+    // read the initial position off the next frame rather than during the effect
+    const raf = requestAnimationFrame(onScroll);
     window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
+    return () => {
+      cancelAnimationFrame(raf);
+      window.removeEventListener("scroll", onScroll);
+    };
   }, []);
-
-  useEffect(() => setOpen(false), [pathname]);
 
   useEffect(() => {
     document.body.style.overflow = open ? "hidden" : "";

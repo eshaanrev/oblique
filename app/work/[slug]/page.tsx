@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import HeroImage from "@/components/HeroImage";
 import Parallax from "@/components/Parallax";
 import Photo from "@/components/Photo";
 import Reveal from "@/components/Reveal";
@@ -40,16 +41,11 @@ export default async function ProjectPage({ params }: Params) {
     <article>
       {/* full-bleed hero with the title sitting on it */}
       <section className="relative h-[86svh] min-h-[460px] w-full overflow-hidden">
-        <div className="settle absolute inset-0">
-          <Image
-            src={project.cover.src}
-            alt={project.cover.alt}
-            fill
-            priority
-            sizes="100vw"
-            style={{ objectFit: "cover", objectPosition: project.cover.focus ?? "center" }}
-          />
-        </div>
+        <HeroImage
+          src={project.cover.src}
+          alt={project.cover.alt}
+          focus={project.cover.focus ?? "center"}
+        />
         <div
           className="absolute inset-0"
           style={{
