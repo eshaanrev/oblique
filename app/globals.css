@@ -1,26 +1,183 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+@theme {
+  /* cool, metallic, near-black — taken off the photography */
+  --color-void: #08090b;
+  --color-ink: #0d1013;
+  --color-surface: #141920;
+  --color-raised: #1c232c;
+  --color-chalk: #e8ecef;
+  --color-chalk-2: #a7b1bb;
+  --color-muted: #737e8a;
+  --color-faint: #4d565f;
+  --color-line: #222a33;
+  --color-line-2: #2f3944;
+  --color-amber: #d8913f;
+  --color-steel: #8ba2b8;
+
+  --font-display: var(--font-display), "Helvetica Neue", sans-serif;
+  --font-sans: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-mono), ui-monospace, monospace;
+
+  --ease-arch: cubic-bezier(0.19, 1, 0.22, 1);
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+@layer base {
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    scroll-behavior: smooth;
+    background-color: var(--color-void);
+  }
+
+  body {
+    background-color: var(--color-void);
+    color: var(--color-chalk);
+    font-family: var(--font-sans);
+    font-synthesis-weight: none;
+  }
+
+  ::selection {
+    background-color: var(--color-amber);
+    color: var(--color-void);
+  }
+
+  ::-webkit-scrollbar { width: 9px; }
+  ::-webkit-scrollbar-track { background: var(--color-void); }
+  ::-webkit-scrollbar-thumb { background: var(--color-raised); }
+  ::-webkit-scrollbar-thumb:hover { background: var(--color-faint); }
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@layer components {
+  /* mono micro-label — the technical register that holds the whole site */
+  .label {
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    line-height: 1;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+  }
+
+  /* condensed uppercase display, set tight — signage, not editorial */
+  .display {
+    font-family: var(--font-display);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: -0.025em;
+    line-height: 0.88;
+  }
+
+  .hair {
+    height: 1px;
+    background-color: var(--color-line);
+  }
+
+  .link-underline {
+    position: relative;
+    display: inline-block;
+  }
+  .link-underline::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: -3px;
+    height: 1px;
+    width: 100%;
+    background-color: currentColor;
+    transform: scaleX(0);
+    transform-origin: right;
+    transition: transform 0.6s var(--ease-arch);
+  }
+  .link-underline:hover::after,
+  .link-underline[data-active="true"]::after {
+    transform: scaleX(1);
+    transform-origin: left;
+  }
+
+  /* photos sit on a dark plate so they never flash white while loading */
+  .plate {
+    background-color: var(--color-surface);
+    overflow: hidden;
+    position: relative;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* ---- motion ---- */
+@keyframes rise-in {
+  from { transform: translateY(102%); }
+  to { transform: translateY(0); }
+}
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes settle {
+  from { transform: scale(1.08); }
+  to { transform: none; }
+}
+@keyframes ticker {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+.line-mask {
+  display: block;
+  overflow: hidden;
+}
+.line-mask > span {
+  display: block;
+  animation: rise-in 1.15s var(--ease-arch) both;
+}
+
+/* Hero photograph settles into place instead of just appearing. Deliberately
+   no fill-mode: the resting state is the visible one, so if the animation
+   never starts the picture is simply there rather than stuck at frame zero. */
+.settle {
+  animation: settle 2.2s cubic-bezier(0.19, 1, 0.22, 1);
+}
+
+.fade-up {
+  opacity: 0;
+  transform: translateY(26px);
+  transition:
+    opacity 0.9s var(--ease-arch),
+    transform 0.9s var(--ease-arch);
+  will-change: opacity, transform;
+}
+.fade-up[data-shown="true"] {
+  opacity: 1;
+  transform: none;
+}
+
+/* photo wipe: the plate uncovers the image from the bottom edge up */
+.wipe {
+  position: absolute;
+  inset: 0;
+  background-color: var(--color-void);
+  transform-origin: bottom;
+  transform: scaleY(1);
+  transition: transform 1.15s var(--ease-arch);
+  z-index: 2;
+}
+[data-shown="true"] > .wipe {
+  transform: scaleY(0);
+}
+
+.ticker-track {
+  display: flex;
+  width: max-content;
+  animation: ticker 46s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+  .fade-up { opacity: 1; transform: none; }
+  .wipe { display: none; }
+  .ticker-track { animation: none; }
 }
